@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serviços & Scanner Demo | Cyber Primer Infortech</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ════════════════════════════════════════
+   VARS & BASE
+════════════════════════════════════════ */
+:root {
+  --bg:       #04080f;
+  --surf:     #090f1a;
+  --surf2:    #0e1825;
+  --border:   #162032;
+  --border2:  #1e3048;
+  --cyan:     #00d4ff;
+  --cyan-dim: rgba(0,212,255,.12);
+  --green:    #00e676;
+  --red:      #ff3b30;
+  --orange:   #ff9f0a;
+  --text:     #dde4ef;
+  --muted:    #5a7090;
+  --mono:     'Space Mono', monospace;
+  --sans:     'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ── GRID SCAN HERO ── */
+.scan-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 24px 80px;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Gride de fundo animada */
+.scan-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: gridMove 20s linear infinite;
+  pointer-events: none;
+}
+@keyframes gridMove {
+  from { background-position: 0 0; }
+  to   { background-position: 0 48px; }
+}
+
+/* Glow radial */
+.scan-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,212,255,.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-content { position: relative; z-index: 1; max-width: 680px; }
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,212,255,.07);
+  border: 1px solid rgba(0,212,255,.18);
+  border-radius: 100px;
+  padding: 6px 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--cyan);
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.pill-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  animation: blink-dot 1.8s ease-in-out infinite;
+}
+@keyframes blink-dot {
+  0%,100% { opacity:1; box-shadow:0 0 6px var(--cyan); }
+  50%      { opacity:.3; box-shadow:none; }
+}
+
+.hero-title {
+  font-size: clamp(36px, 7vw, 72px);
+  font-weight: 800;
+  line-height: 1.07;
+  letter-spacing: -.02em;
+  margin-bottom: 20px;
+}
+.hero-title .hl {
+  background: linear-gradient(90deg, var(--cyan), #7b9fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 17px;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 48px;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── SCAN BOX ── */
+.scan-wrap { width: 100%; max-width: 580px; margin: 0 auto; }
+
+.scan-input-row {
+  display: flex;
+  background: var(--surf);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+  box-shadow: 0 4px 32px rgba(0,0,0,.4);
+}
+.scan-input-row:focus-within {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,212,255,.1), 0 8px 40px rgba(0,0,0,.5);
+}
+
+.scan-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--surf2);
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+  user-select: none;
+  flex-shrink: 0;
+}
+#domainInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 16px 14px;
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--text);
+  min-width: 0;
+}
+#domainInput::placeholder { color: var(--muted); }
+#scanBtn {
+  background: var(--cyan);
+  color: #000;
+  border: none;
+  padding: 16px 24px;
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: .3px;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+#scanBtn:hover   { background: #00bcd4; }
+#scanBtn:active  { transform: scale(.97); }
+#scanBtn:disabled {
+  background: var(--surf2);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+.scan-caption {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .3px;
+}
+.scan-caption span { color: var(--green); }
+
+/* ── TERMINAL ── */
+#terminal {
+  display: none;
+  margin-top: 24px;
+  background: #030810;
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: var(--mono);
+  text-align: left;
+}
+.term-bar {
+  display: flex;
+  align-items: center;
+  padding: 9px 14px;
+  background: var(--surf2);
+  border-bottom: 1px solid var(--border);
+  gap: 6px;
+}
+.td { width:10px; height:10px; border-radius:50%; }
+.td.r{background:#ff5f57} .td.y{background:#ffbd2e} .td.g{background:#28ca41}
+.term-name { flex:1; text-align:center; font-size:11px; color:var(--muted); letter-spacing:.5px; }
+.term-body  { padding:16px; line-height:2.1; font-size:13px; min-height:120px; }
+.t-sym  { color:var(--cyan); }
+.t-ok   { color:var(--green); }
+.t-dim  { color:var(--muted); }
+.t-err  { color:var(--red); }
+.t-warn { color:var(--orange); }
+.t-blink {
+  display:inline-block; width:7px; height:13px;
+  background:var(--cyan); vertical-align:middle;
+  animation: blink-cur .75s step-end infinite;
+}
+@keyframes blink-cur { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── ERROR ── */
+#scanError {
+  display: none;
+  margin-top: 12px;
+  background: rgba(255,59,48,.07);
+  border: 1px solid rgba(255,59,48,.22);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--red);
+  text-align: left;
+}
+
+/* ── RESULTADO ── */
+#result {
+  display: none;
+  margin-top: 32px;
+  text-align: left;
+}
+
+.res-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.res-domain {
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.res-domain .dom { color:var(--cyan); }
+.res-domain .ip  { color:var(--muted); font-size:11px; }
+.res-badge {
+  display: inline-flex; align-items:center; gap:6px;
+  padding: 4px 14px; border-radius:100px;
+  font-size:10px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
+}
+.b-green  { background:rgba(0,230,118,.1);  color:var(--green);  border:1px solid rgba(0,230,118,.2); }
+.b-orange { background:rgba(255,159,10,.1); color:var(--orange); border:1px solid rgba(255,159,10,.2); }
+.b-red    { background:rgba(255,59,48,.1);  color:var(--red);    border:1px solid rgba(255,59,48,.2); }
+
+/* Score */
+.score-row { display:flex; gap:28px; align-items:center; margin-bottom:24px; flex-wrap:wrap; }
+.score-ring { flex-shrink:0; text-align:center; }
+.score-ring svg { width:106px; height:106px; }
+.score-ring .rating { font-size:11px; font-weight:700; letter-spacing:1.5px; margin-top:6px; }
+.score-detail { flex:1; min-width:200px; }
+.score-detail h3 { font-size:17px; font-weight:700; margin-bottom:6px; }
+.score-detail p  { font-size:13px; color:var(--muted); line-height:1.65; }
+.score-pills { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.score-pill {
+  font-size:11px; font-family:var(--mono);
+  padding:3px 10px; border-radius:6px;
+  background:rgba(255,59,48,.1); color:#ff8a80; border:1px solid rgba(255,59,48,.2);
+}
+.score-pill.ok { background:rgba(0,230,118,.08); color:#6ee7b7; border-color:rgba(0,230,118,.15); }
+
+/* Scorecard */
+.scorecard {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.scorecard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  background: var(--surf2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.scorecard-head .formula { color: var(--cyan); }
+.sc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.sc-row:last-child { border-bottom:none; }
+.sc-row.bad { background:rgba(255,59,48,.04); }
+.sc-pts-bad { font-family:var(--mono); font-weight:700; color:var(--red);   font-size:12px; }
+.sc-pts-ok  { font-family:var(--mono); font-weight:700; color:var(--green); font-size:12px; }
+.sc-det { font-size:11px; color:var(--muted); font-family:var(--mono); margin-left:6px; }
+
+/* Status cards */
+.st-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.st-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 15px;
+}
+.st-lbl { font-size:10px; font-family:var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
+.st-val { font-size:13px; font-weight:700; }
+.ok  { color:var(--green); }
+.bad { color:var(--red); }
+.wrn { color:var(--orange); }
+.neu { color:var(--cyan); }
+
+/* Flags */
+.flags-wrap { margin-bottom:24px; }
+.flags-title { font-size:10px; font-family:var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+.flag-row {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px;
+  background:var(--surf); border:1px solid var(--border);
+  border-radius:8px; margin-bottom:6px; font-size:13px;
+}
+.flag-blur { filter:blur(6px); user-select:none; flex:1; color:var(--muted); font-family:var(--mono); letter-spacing:2px; }
+.flag-lock {
+  font-size:9px; font-family:var(--mono);
+  background:var(--surf2); border:1px solid var(--border2);
+  border-radius:10px; padding:3px 10px; color:var(--muted); white-space:nowrap;
+}
+.flags-more { text-align:center; font-size:11px; font-family:var(--mono); color:var(--muted); padding:8px; }
+
+/* CTA pós-scan */
+.res-cta {
+  background: linear-gradient(135deg, rgba(0,212,255,.06), rgba(0,100,200,.04));
+  border: 1px solid rgba(0,212,255,.18);
+  border-radius: 14px;
+  padding: 28px 24px;
+  text-align: center;
+}
+.res-cta h3 { font-size:20px; font-weight:800; margin-bottom:8px; }
+.res-cta p  { font-size:13px; color:var(--muted); margin-bottom:20px; line-height:1.65; }
+.cta-btns   { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.btn-cyan {
+  display:inline-block; background:var(--cyan); color:#000;
+  padding:12px 24px; border-radius:9px;
+  font-weight:800; font-size:14px; text-decoration:none;
+  transition:background .2s, transform .1s;
+}
+.btn-cyan:hover { background:#00bcd4; transform:translateY(-1px); }
+.btn-ghost {
+  display:inline-block; background:transparent; color:var(--cyan);
+  padding:12px 24px; border-radius:9px;
+  border:1px solid rgba(0,212,255,.3);
+  font-weight:700; font-size:14px; text-decoration:none;
+  transition:all .2s;
+}
+.btn-ghost:hover { background:rgba(0,212,255,.07); }
+
+/* ════════════════════════════════════════
+   SERVIÇOS
+════════════════════════════════════════ */
+.section-wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 80px 24px;
+}
+.sec-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 10px;
+}
+.sec-title {
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: 800;
+  line-height: 1.12;
+  margin-bottom: 48px;
+}
+
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 64px;
+}
+.svc-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px;
+  transition: border-color .2s, transform .2s;
+}
+.svc-card:hover { border-color:var(--border2); transform:translateY(-2px); }
+.svc-icon { font-size:26px; margin-bottom:12px; }
+.svc-card h3 { font-size:15px; font-weight:700; margin-bottom:8px; }
+.svc-card p  { font-size:13px; color:var(--muted); line-height:1.7; }
+
+/* ════════════════════════════════════════
+   PREÇOS
+════════════════════════════════════════ */
+.pricing-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 100px;
+}
+.pricing-sub { font-size:15px; color:var(--muted); text-align:center; margin-bottom:56px; margin-top:6px; }
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.plan {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 30px 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform .2s, border-color .2s;
+}
+.plan:hover { transform:translateY(-4px); border-color:var(--border2); }
+.plan.hot {
+  border-color: var(--cyan);
+  background: linear-gradient(160deg, rgba(0,212,255,.05) 0%, var(--surf) 55%);
+  transform: scale(1.02);
+}
+.plan.hot:hover { transform:scale(1.02) translateY(-4px); }
+
+.plan-badge {
+  position:absolute; top:-12px; left:50%;
+  transform:translateX(-50%);
+  background:var(--cyan); color:#000;
+  font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+  padding:3px 14px; border-radius:100px; white-space:nowrap;
+}
+.plan-tier { font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.plan-price { font-family:var(--mono); font-size:42px; font-weight:700; line-height:1; margin-bottom:4px; }
+.plan-price .cur { font-size:18px; color:var(--muted); vertical-align:top; margin-top:5px; display:inline-block; }
+.plan-price .free { color:var(--green); font-size:38px; }
+.plan-per { font-size:12px; color:var(--muted); margin-bottom:16px; font-family:var(--mono); }
+.plan-desc { font-size:13px; color:var(--muted); line-height:1.65; padding-bottom:18px; border-bottom:1px solid var(--border); margin-bottom:18px; }
+
+.plan-feats { flex:1; margin-bottom:20px; }
+.feat {
+  display:flex; align-items:baseline; gap:8px;
+  padding:6px 0; font-size:13px; line-height:1.4;
+  border-bottom:1px solid rgba(255,255,255,.03);
+}
+.feat:last-child { border-bottom:none; }
+.feat.lock { opacity:.35; }
+.feat .fi { font-size:13px; flex-shrink:0; }
+
+.plan-files {
+  background:var(--surf2);
+  border-radius:8px;
+  padding:12px 14px;
+  margin-bottom:18px;
+}
+.plan-files .pf-lbl { font-size:9px; font-family:var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:7px; }
+.pf-item { font-size:11px; font-family:var(--mono); color:var(--cyan); padding:2px 0; }
+.pf-item::before { content:'→ '; color:var(--muted); }
+
+.plan-btn {
+  display:block; text-align:center; width:100%;
+  padding:13px; border-radius:9px;
+  font-weight:800; font-size:14px;
+  text-decoration:none; cursor:pointer;
+  border:none; font-family:var(--sans);
+  transition:all .2s;
+}
+.pb-cyan   { background:var(--cyan); color:#000; }
+.pb-cyan:hover { background:#00bcd4; transform:translateY(-1px); }
+.pb-outline { background:transparent; color:var(--text); border:1px solid var(--border2); }
+.pb-outline:hover { border-color:var(--cyan); color:var(--cyan); background:var(--cyan-dim); }
+.pb-green  { background:#00c853; color:#fff; }
+.pb-green:hover { background:#00b048; transform:translateY(-1px); }
+
+/* ════════════════════════════════════════
+   DIFERENCIAL
+════════════════════════════════════════ */
+.diferencial-wrap {
+  max-width: 900px;
+  margin: 0 auto 80px;
+  padding: 0 24px;
+}
+.dif-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.dif-icon { font-size:44px; flex-shrink:0; }
+.dif-card h3 { font-size:21px; font-weight:800; margin-bottom:10px; }
+.dif-card p  { font-size:14px; color:var(--muted); line-height:1.85; }
+
+/* ════════════════════════════════════════
+   MODAL PIX
+════════════════════════════════════════ */
+#pixModal {
+  display:none;
+  position:fixed; inset:0; z-index:9000;
+  background:rgba(0,0,0,.82);
+  backdrop-filter:blur(8px);
+  align-items:center; justify-content:center;
+  padding:24px;
+}
+#pixModal.open { display:flex; }
+.pix-box {
+  background: var(--surf);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 40px 36px;
+  max-width: 460px;
+  width: 100%;
+  position: relative;
+  text-align: center;
+  animation: pop .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop {
+  from { opacity:0; transform:scale(.88) translateY(16px); }
+  to   { opacity:1; transform:scale(1)   translateY(0); }
+}
+.pix-close {
+  position:absolute; top:16px; right:18px;
+  background:none; border:none; color:var(--muted);
+  font-size:20px; cursor:pointer; line-height:1;
+  transition:color .2s;
+}
+.pix-close:hover { color:var(--text); }
+.pix-badge-lbl {
+  display:inline-block;
+  background:rgba(0,200,83,.1); color:#00c853;
+  border:1px solid rgba(0,200,83,.22);
+  padding:4px 14px; border-radius:100px;
+  font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+  margin-bottom:16px;
+}
+.pix-box h3 { font-size:22px; font-weight:800; margin-bottom:6px; }
+.pix-plan-nm { font-family:var(--mono); font-size:13px; color:var(--cyan); margin-bottom:20px; }
+.pix-price-big {
+  font-family:var(--mono); font-size:52px; font-weight:700;
+  line-height:1; margin-bottom:4px;
+}
+.pix-price-big small { font-size:22px; color:var(--muted); }
+
+.pix-key-box {
+  background:var(--surf2); border:1px solid var(--border2);
+  border-radius:11px; padding:16px; margin:22px 0 14px;
+}
+.pix-key-lbl { font-size:10px; font-family:var(--mono); color:var(--muted); letter-spacing:.8px; margin-bottom:6px; text-transform:uppercase; }
+.pix-key { font-family:var(--mono); font-size:15px; font-weight:700; color:var(--cyan); word-break:break-all; }
+.pix-copy {
+  background:rgba(0,212,255,.1); border:1px solid rgba(0,212,255,.22);
+  color:var(--cyan); padding:8px 20px; border-radius:8px;
+  font-size:12px; font-weight:700; cursor:pointer; margin-top:10px;
+  font-family:var(--mono); transition:all .2s;
+}
+.pix-copy:hover { background:rgba(0,212,255,.18); }
+
+.pix-steps {
+  text-align:left; margin:16px 0 4px;
+  font-size:12px; color:var(--muted); line-height:2;
+}
+.pix-steps li { margin-left:16px; }
+
+.pix-wpp {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  background:#25d366; color:#fff;
+  padding:14px; border-radius:10px;
+  font-weight:800; font-size:15px;
+  text-decoration:none; margin-top:14px;
+  transition:background .2s;
+}
+.pix-wpp:hover { background:#1fb855; }
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media(max-width:600px) {
+  .scan-hero { padding:100px 16px 60px; }
+  .scan-prefix { display:none; }
+  #domainInput { padding:14px; }
+  #scanBtn { padding:14px 16px; font-size:13px; }
+  .section-wrap, .pricing-wrap { padding-left:16px; padding-right:16px; }
+  .pix-box { padding:28px 20px; }
+  .pix-price-big { font-size:40px; }
+}
+</style>
+</head>
+<body>
+<div class="background"></div>
+
+<!-- NAV (igual ao restante do site) -->
+<nav>
+  <div class="logo">Cyber Primer Infortech</div>
+  <div class="menu">
+    <a href="index.html">Home</a>
+    <a href="quem-somos.html">Quem Somos</a>
+    <a href="servicos.html">Serviços</a>
+    <a href="contato.html">Contato</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HERO  — SCANNER DEMO
+══════════════════════════════════════ -->
+<div class="scan-hero">
+  <div class="hero-content">
+    <div class="hero-pill">
+      <div class="pill-dot"></div>
+      Scanner ao Vivo — Demo Gratuita
+    </div>
+
+    <h1 class="hero-title">
+     Descubra a exposição digital<br>do seu <span class="hl">site agora</span>
+    </h1>
+    <p class="hero-sub">
+      Digite o domínio da sua empresa e receba em segundos
+      uma análise real de exposição digital — sem cadastro, sem custo.
+    </p>
+
+    <div class="scan-wrap">
+      <!-- INPUT -->
+      <div class="scan-input-row">
+        <div class="scan-prefix">$ scan</div>
+        <input
+          id="domainInput"
+          type="text"
+          placeholder="seusite.com.br"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+        <button id="scanBtn" onclick="startScan()">Analisar →</button>
+      </div>
+      <div class="scan-caption">
+        <span>🔒</span> Análise 100% passiva — dados públicos apenas — nenhum acesso indevido
+      </div>
+
+      <div id="scanError"></div>
+
+      <!-- TERMINAL -->
+      <div id="terminal">
+        <div class="term-bar">
+          <div class="td r"></div>
+          <div class="td y"></div>
+          <div class="td g"></div>
+          <div class="term-name" id="termName">cyber-primer — scan</div>
+        </div>
+        <div class="term-body" id="termBody"></div>
+      </div>
+
+      <!-- RESULTADO -->
+      <div id="result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     O QUE ANALISAMOS
+══════════════════════════════════════ -->
+<div class="section-wrap">
+  <div class="sec-label">O que analisamos</div>
+  <h2 class="sec-title">7 módulos de análise<br>de exposição externa</h2>
+
+  <div class="svc-grid">
+    <div class="svc-card">
+      <div class="svc-icon">🌐</div>
+      <h3>IP & Infraestrutura</h3>
+      <p>Geolocalização, ASN, detecção de CDN, verificação em listas de nós Tor e consulta Shodan.</p>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon">🔌</div>
+      <h3>Portas & Serviços</h3>
+      <p>Top 100 portas TCP com identificação de serviço, versão e riscos associados a cada exposição.</p>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon">🔐</div>
+      <h3>SSL / TLS</h3>
+      <p>Validade, expiração, protocolo, cipher suite e alertas de configuração fraca ou desatualizada.</p>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon">📧</div>
+      <h3>DNS & Email</h3>
+      <p>SPF, DMARC, MX, NS. Subdomínios via Certificate Transparency Logs (crt.sh).</p>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon">🛡️</div>
+      <h3>Cabeçalhos HTTP</h3>
+      <p>Score dos 7 cabeçalhos críticos: CSP, HSTS, X-Frame-Options, CORS e mais.</p>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon">🕵️</div>
+      <h3>OSINT & Vazamentos</h3>
+      <p>HaveIBeenPwned, VirusTotal, URLScan.io e Google Safe Browsing para exposições públicas.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PLANOS & PREÇOS
+══════════════════════════════════════ -->
+<div class="pricing-wrap">
+  <div style="text-align:center">
+    <div class="sec-label">Planos & Preços</div>
+    <h2 class="sec-title" style="margin-bottom:6px">Transparência total<br>de investimento</h2>
+    <p class="pricing-sub">Pagamento via <strong style="color:var(--green)">Pix</strong> — entrega do relatório em até <strong>24h úteis</strong> no seu e-mail</p>
+  </div>
+
+  <div class="plan-grid">
+
+    <!-- DEMO GRÁTIS -->
+    <div class="plan">
+      <div class="plan-tier">Demo</div>
+      <div class="plan-price"><span class="free">Grátis</span></div>
+      <div class="plan-per">Imediato · Online</div>
+      <div class="plan-desc">Prévia automatizada dos indicadores principais. Ideal para um primeiro diagnóstico sem compromisso.</div>
+
+      <div class="plan-feats">
+        <div class="feat"><span class="fi">✅</span> IP e detecção de CDN</div>
+        <div class="feat"><span class="fi">✅</span> Validade do certificado SSL</div>
+        <div class="feat"><span class="fi">✅</span> SPF e DMARC (anti-email fraude)</div>
+        <div class="feat"><span class="fi">✅</span> Score de cabeçalhos HTTP</div>
+        <div class="feat"><span class="fi">✅</span> 3 alertas de risco visíveis</div>
+        <div class="feat lock"><span class="fi">🔒</span> Portas e serviços detalhados</div>
+        <div class="feat lock"><span class="fi">🔒</span> Subdomínios descobertos</div>
+        <div class="feat lock"><span class="fi">🔒</span> CVEs correlacionados</div>
+        <div class="feat lock"><span class="fi">🔒</span> Relatório para download</div>
+      </div>
+
+      <div class="plan-files">
+        <div class="pf-lbl">Entrega</div>
+        <div class="pf-item">Resultado na tela (sem arquivo)</div>
+      </div>
+
+      <button class="plan-btn pb-outline"
+        onclick="document.getElementById('domainInput').focus();window.scrollTo({top:0,behavior:'smooth'})">
+        Usar Demo Grátis ↑
+      </button>
+    </div>
+
+    <!-- PRÉVIA -->
+    <div class="plan">
+      <div class="plan-tier">Prévia</div>
+      <div class="plan-price"><span class="cur">R$</span>97</div>
+      <div class="plan-per">por domínio analisado</div>
+      <div class="plan-desc">Relatório de pré-venda. Perfeito para mostrar ao cliente a situação de segurança e gerar interesse em correção.</div>
+
+      <div class="plan-feats">
+        <div class="feat"><span class="fi">✅</span> Scan completo (7 módulos)</div>
+        <div class="feat"><span class="fi">✅</span> Score com composição detalhada</div>
+        <div class="feat"><span class="fi">✅</span> Todos os alertas e flags</div>
+        <div class="feat"><span class="fi">✅</span> Subdomínios descobertos</div>
+        <div class="feat"><span class="fi">✅</span> CVEs identificados</div>
+        <div class="feat"><span class="fi">✅</span> Layout profissional com sua marca</div>
+        <div class="feat lock"><span class="fi">🔒</span> Relatório técnico completo</div>
+        <div class="feat lock"><span class="fi">🔒</span> Plano de remediação</div>
+        <div class="feat lock"><span class="fi">🔒</span> Reunião explicativa</div>
+      </div>
+
+      <div class="plan-files">
+        <div class="pf-lbl">Arquivos entregues</div>
+        <div class="pf-item">PRÉVIA.html (branded)</div>
+        <div class="pf-item">JSON do scan</div>
+      </div>
+
+      <button class="plan-btn pb-outline" onclick="openPix('Prévia',97)">
+        Contratar via Pix — R$ 97
+      </button>
+    </div>
+
+    <!-- PROFISSIONAL — DESTAQUE -->
+    <div class="plan hot">
+      <div class="plan-badge">⭐ Mais contratado</div>
+      <div class="plan-tier">Profissional</div>
+      <div class="plan-price"><span class="cur">R$</span>197</div>
+      <div class="plan-per">por domínio analisado</div>
+      <div class="plan-desc">Relatório técnico completo com diagnóstico e plano de ação. Para empresas que querem realmente resolver os riscos.</div>
+
+      <div class="plan-feats">
+        <div class="feat"><span class="fi">✅</span> Tudo do plano Prévia</div>
+        <div class="feat"><span class="fi">✅</span> Relatório técnico dark (completo)</div>
+        <div class="feat"><span class="fi">✅</span> Plano de remediação priorizado</div>
+        <div class="feat"><span class="fi">✅</span> Portas com versões e banners</div>
+        <div class="feat"><span class="fi">✅</span> CVEs com links e CVSS</div>
+        <div class="feat"><span class="fi">✅</span> OSINT completo</div>
+        <div class="feat"><span class="fi">✅</span> Análise TLS e cipher suites</div>
+        <div class="feat lock"><span class="fi">🔒</span> Reunião explicativa</div>
+        <div class="feat lock"><span class="fi">🔒</span> Relatório executivo FULL</div>
+      </div>
+
+      <div class="plan-files">
+        <div class="pf-lbl">Arquivos entregues</div>
+        <div class="pf-item">PRÉVIA.html</div>
+        <div class="pf-item">COMPLETO.html</div>
+        <div class="pf-item">REMEDIAÇÃO.html</div>
+        <div class="pf-item">JSON do scan</div>
+      </div>
+
+      <button class="plan-btn pb-cyan" onclick="openPix('Profissional',197)">
+        Contratar via Pix — R$ 197
+      </button>
+    </div>
+
+    <!-- EXECUTIVO -->
+    <div class="plan">
+      <div class="plan-tier">Executivo</div>
+      <div class="plan-price"><span class="cur">R$</span>347</div>
+      <div class="plan-per">por domínio analisado</div>
+      <div class="plan-desc">Pacote completo com relatório executivo premium, reunião de apresentação e suporte técnico na correção.</div>
+
+      <div class="plan-feats">
+        <div class="feat"><span class="fi">✅</span> Tudo do plano Profissional</div>
+        <div class="feat"><span class="fi">✅</span> Relatório executivo FULL</div>
+        <div class="feat"><span class="fi">✅</span> Reunião de apresentação (30 min)</div>
+        <div class="feat"><span class="fi">✅</span> Suporte na correção dos itens</div>
+        <div class="feat"><span class="fi">✅</span> Acesso direto via WhatsApp</div>
+        <div class="feat"><span class="fi">✅</span> Escopo de contratação futura</div>
+        <div class="feat"><span class="fi">✅</span> Entrega em até 24h úteis</div>
+        <div class="feat"><span class="fi">✅</span> Todos os 4 arquivos + JSON</div>
+      </div>
+
+      <div class="plan-files">
+        <div class="pf-lbl">Arquivos entregues</div>
+        <div class="pf-item">FULL.html (premium executivo)</div>
+        <div class="pf-item">PRÉVIA + COMPLETO + REMEDIAÇÃO</div>
+        <div class="pf-item">JSON do scan</div>
+        <div class="pf-item">30 min reunião</div>
+      </div>
+
+      <button class="plan-btn pb-green" onclick="openPix('Executivo',347)">
+        Contratar via Pix — R$ 347
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     DIFERENCIAL
+══════════════════════════════════════ -->
+<div class="diferencial-wrap">
+  <div class="dif-card">
+    <div class="dif-icon">🛡️</div>
+    <div>
+      <h3>100% Ético e Passivo — Nenhum Acesso Indevido</h3>
+      <p>
+        Não realizamos invasões, exploração de vulnerabilidades ou acesso não autorizado.
+        Toda análise usa exclusivamente <strong>dados publicamente disponíveis</strong>: certificados SSL,
+        registros DNS, headers HTTP, logs de transparência de certificados e bases públicas de OSINT.
+        É exatamente a visão que um agente mal-intencionado teria — mas usada para <em>proteger</em>, não para atacar.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL PIX
+══════════════════════════════════════ -->
+<div id="pixModal">
+  <div class="pix-box">
+    <button class="pix-close" onclick="closePix()">✕</button>
+    <div class="pix-badge-lbl">💚 Pagamento via Pix</div>
+    <h3>Contratação Segura</h3>
+    <div class="pix-plan-nm" id="pixPlanNm">Plano Profissional</div>
+    <div class="pix-price-big"><small>R$</small><span id="pixVal">197</span></div>
+
+    <div class="pix-key-box">
+      <div class="pix-key-lbl">Chave Pix — CNPJ</div>
+      <div class="pix-key">51.698.369/0001-50</div>
+      <button class="pix-copy" onclick="copyPix()">📋 Copiar Chave</button>
+    </div>
+
+    <ol class="pix-steps">
+      <li>Abra o app do seu banco e acesse <strong>Pix</strong></li>
+      <li>Cole a chave CNPJ acima e insira o valor exato</li>
+      <li>Na descrição coloque o <strong>domínio a analisar</strong></li>
+      <li>Envie o comprovante pelo WhatsApp abaixo</li>
+      <li>Relatório entregue em até <strong>24h úteis</strong></li>
+    </ol>
+
+    <a id="pixWpp" href="#" target="_blank" class="pix-wpp">
+      📲 Enviar Comprovante no WhatsApp
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-title">Cyber Primer Infortech</div>
+  CNPJ 51.698.369/0001-50<br>
+  Vale do Araguaia | Barra do Garças - MT<br><br>
+  © 2026 Todos os direitos reservados
+</footer>
+
+<a href="https://wa.me/5566992263383?text=Ola%20Cyber%20Primer%20Infortech!%20Gostaria%20de%20mais%20informacoes%20sobre%20os%20servicos."
+   target="_blank" rel="noopener noreferrer" class="whatsapp">WhatsApp</a>
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script>
+// ┌─────────────────────────────────────────┐
+// │  CONFIGURAÇÃO — EDITE AQUI APÓS DEPLOY  │
+// └─────────────────────────────────────────┘
+const API_BASE = 'https://SEU-APP-AQUI.onrender.com';
+//   ↑ Troque pelo URL que o Render.com gerar para você.
+//   Enquanto não tiver a API, o scanner mostra um aviso amigável.
+
+// ─────────────────────────────────────────────────────────
+
+let scanning = false;
+
+function cleanDomain(raw) {
+  return raw.trim()
+    .replace(/^https?:\/\//i,'').replace(/^www\./i,'')
+    .split('/')[0].split('?')[0].toLowerCase();
+}
+
+function validDomain(d) {
+  return /^[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)+$/.test(d);
+}
+
+// ── TERMINAL ──────────────────────────────
+function showTerminal(domain) {
+  document.getElementById('terminal').style.display = 'block';
+  document.getElementById('termName').textContent = `cyber-primer — scan ${domain}`;
+  document.getElementById('termBody').innerHTML = '';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('result').innerHTML = '';
+}
+
+function addLine(html, delay=0) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const b = document.getElementById('termBody');
+      if (!b) return resolve();
+      const d = document.createElement('div');
+      d.innerHTML = html;
+      b.appendChild(d);
+      b.scrollTop = b.scrollHeight;
+      resolve();
+    }, delay);
+  });
+}
+
+// ── RENDER DO RESULTADO ───────────────────
+function scoreColor(s) {
+  return s >= 80 ? '#00e676' : s >= 60 ? '#ff9f0a' : '#ff3b30';
+}
+function scoreBadge(s) {
+  const cls = s >= 80 ? 'b-green' : s >= 60 ? 'b-orange' : 'b-red';
+  const lbl = s >= 80 ? '✅ BOM' : s >= 60 ? '⚠️ ATENÇÃO' : '🔴 CRÍTICO';
+  return `<span class="res-badge ${cls}">${lbl} — ${s}/100</span>`;
+}
+
+function renderResult(domain, d) {
+  const score   = d.score ?? 100;
+  const col     = scoreColor(score);
+  const dash    = Math.round(score * 3.27); // circ r=52
+  const spf     = d.spf_ok;
+  const dmarc   = d.dmarc_ok;
+  const hdrs    = d.headers_pct ?? 0;
+  const sslOk   = d.ssl_valid;
+  const sslDays = d.ssl_days_left ?? '?';
+  const cdn     = d.cdn_detected ? (d.cdn_name || 'CDN') : 'Servidor Direto';
+  const flags   = d.risk_flags ?? [];
+  const bkdown  = d.score_breakdown ?? {};
+
+  // Scorecard rows
+  const SC = [
+    ['🛡️ Vulnerabilidades', bkdown.cve ?? 0,     bkdown.cve_det  ?? 'nenhum'],
+    ['📧 SPF',             bkdown.spf ?? 0,     spf   ? 'configurado' : 'ausente'],
+    ['📧 DMARC',           bkdown.dmarc ?? 0,    dmarc ? 'configurado' : 'ausente'],
+    ['🔒 Cabeçalhos HTTP', bkdown.headers ?? 0,  hdrs + '%'],
+    ['🔐 Certificado SSL', bkdown.ssl ?? 0,      sslOk ? sslDays + ' dias' : 'inválido'],
+    ['💾 Vazamentos HIBP', bkdown.breach ?? 0,   d.breach_count ? d.breach_count + ' breach(es)' : 'nenhum'],
+    ['🦠 VirusTotal',      bkdown.vt ?? 0,       d.vt_malicious ? d.vt_malicious + ' engine(s)' : 'limpo'],
+  ];
+
+  const totalPen = SC.reduce((a,[,v]) => a + (v < 0 ? Math.abs(v) : 0), 0);
+
+  const scRows = SC.map(([lbl, pts, det]) => {
+    const isBad = pts < 0;
+    return `
+      <div class="sc-row${isBad ? ' bad' : ''}">
+        <span>${lbl} <span class="sc-det">${det}</span></span>
+        <span class="${isBad ? 'sc-pts-bad' : 'sc-pts-ok'}">${isBad ? '−'+Math.abs(pts)+'pts' : '✓ OK'}</span>
+      </div>`;
+  }).join('');
+
+  // Score title
+  const title = score >= 80
+    ? (!spf || !dmarc ? 'Infraestrutura com brechas de email' : 'Boa postura de segurança')
+    : score >= 60 ? 'Vulnerabilidades importantes detectadas'
+    : 'Situação crítica — ação imediata necessária';
+
+  // Pills de penalidade
+  const pills = SC.filter(([,v]) => v < 0)
+    .map(([l,v]) => `<span class="score-pill">−${Math.abs(v)}pts ${l}</span>`)
+    .join('');
+  const okPills = SC.filter(([,v]) => v === 0)
+    .map(([l]) => `<span class="score-pill ok">✓ ${l}</span>`)
+    .join('');
+
+  // Flags
+  const visible = flags.slice(0, 3);
+  const locked  = flags.length - visible.length;
+  const flagsHtml = visible.map(f => {
+    const ic = f.toLowerCase().includes('cve') || f.toLowerCase().includes('crítico') ? '🔴'
+             : f.toLowerCase().includes('alto') || f.toLowerCase().includes('breach') ? '🟠'
+             : '🟡';
+    return `<div class="flag-row"><span>${ic}</span><span>${f}</span></div>`;
+  }).join('') + (locked > 0
+    ? `<div class="flag-row"><span>⚠️</span><span class="flag-blur">${'█'.repeat(48)}</span><span class="flag-lock">🔒 Relatório Completo</span></div>`.repeat(Math.min(locked,2))
+      + `<div class="flags-more">🔒 ${locked} alerta(s) adicional(is) no relatório completo</div>`
+    : '');
+
+  const html = `
+    <div class="res-header">
+      <div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin-bottom:4px;letter-spacing:.8px;text-transform:uppercase">Análise Concluída</div>
+        <div class="res-domain">
+          <span class="dom">🎯 ${domain}</span>
+          <span class="ip"> → ${d.primary_ip ?? 'N/A'}</span>
+        </div>
+      </div>
+      ${scoreBadge(score)}
+    </div>
+
+    <div class="score-row">
+      <div class="score-ring">
+        <svg viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="44" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="8"/>
+          <circle cx="55" cy="55" r="44" fill="none" stroke="${col}" stroke-width="8"
+            stroke-dasharray="${dash} 327" stroke-dashoffset="82"
+            stroke-linecap="round" transform="rotate(-90 55 55)"/>
+          <text x="55" y="50" text-anchor="middle"
+            style="font-size:20px;font-weight:800;fill:${col};font-family:var(--mono)">${score}</text>
+          <text x="55" y="65" text-anchor="middle"
+            style="font-size:9px;fill:rgba(255,255,255,.35);font-family:var(--mono)">/ 100</text>
+        </svg>
+        <div class="rating" style="color:${col}">${score>=80?'BOM':score>=60?'ATENÇÃO':'CRÍTICO'}</div>
+      </div>
+      <div class="score-detail">
+        <h3>${title}</h3>
+        <p>Composição baseada em SSL, email, cabeçalhos HTTP, CVEs e OSINT.</p>
+        <div class="score-pills">
+          ${pills}${okPills}
+        </div>
+      </div>
+    </div>
+
+    <div class="scorecard">
+      <div class="scorecard-head">
+        <span>Composição do score</span>
+        <span class="formula">100 − ${totalPen}pts = ${score}/100</span>
+      </div>
+      ${scRows}
+    </div>
+
+    <div class="st-grid">
+      <div class="st-card">
+        <div class="st-lbl">Certificado SSL</div>
+        <div class="st-val ${sslOk?'ok':'bad'}">${sslOk ? `✅ Válido · ${sslDays} dias` : '❌ Inválido'}</div>
+      </div>
+      <div class="st-card">
+        <div class="st-lbl">SPF</div>
+        <div class="st-val ${spf?'ok':'bad'}">${spf?'✅ Configurado':'❌ Ausente'}</div>
+      </div>
+      <div class="st-card">
+        <div class="st-lbl">DMARC</div>
+        <div class="st-val ${dmarc?'ok':'bad'}">${dmarc?'✅ Configurado':'❌ Ausente'}</div>
+      </div>
+      <div class="st-card">
+        <div class="st-lbl">Cabeçalhos HTTP</div>
+        <div class="st-val ${hdrs>=80?'ok':hdrs>=50?'wrn':'bad'}">${hdrs}% configurados</div>
+      </div>
+      <div class="st-card">
+        <div class="st-lbl">Infraestrutura</div>
+        <div class="st-val neu">${cdn}</div>
+      </div>
+      <div class="st-card">
+        <div class="st-lbl">TLS</div>
+        <div class="st-val ok">${d.tls_version ?? 'Detectado'}</div>
+      </div>
+    </div>
+
+    ${flags.length ? `
+    <div class="flags-wrap">
+      <div class="flags-title">⚠️ Alertas Identificados</div>
+      ${flagsHtml}
+    </div>` : ''}
+
+    <div class="res-cta">
+      <h3>Relatório completo disponível</h3>
+      <p>Esta demo mostra apenas uma fração. O relatório completo inclui portas abertas, todos os subdomínios, CVEs detalhados, OSINT e plano de remediação passo a passo.</p>
+      <div class="cta-btns">
+        <a class="btn-cyan" href="#" onclick="openPix('Profissional',197);return false">
+          📋 Relatório Completo — R$ 197
+        </a>
+        <a class="btn-ghost"
+           href="https://wa.me/5566992263383?text=Olá!%20Fiz%20o%20scan%20demo%20de%20${encodeURIComponent(domain)}%20e%20quero%20saber%20mais%20sobre%20o%20relatório%20completo."
+           target="_blank">
+          💬 Falar no WhatsApp
+        </a>
+      </div>
+    </div>
+  `;
+
+  const el = document.getElementById('result');
+  el.innerHTML = html;
+  el.style.display = 'block';
+  setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 100);
+}
+
+// ── SCAN PRINCIPAL ─────────────────────────
+async function startScan() {
+  if (scanning) return;
+
+  const raw    = document.getElementById('domainInput').value;
+  const domain = cleanDomain(raw);
+  const errEl  = document.getElementById('scanError');
+  errEl.style.display = 'none'; errEl.textContent = '';
+
+  if (!domain) {
+    errEl.textContent = '⚠️  Por favor, digite um domínio para analisar.';
+    errEl.style.display = 'block'; return;
+  }
+  if (!validDomain(domain)) {
+    errEl.textContent = `⚠️  "${domain}" não parece um domínio válido. Tente: seusite.com.br`;
+    errEl.style.display = 'block'; return;
+  }
+
+  scanning = true;
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true; btn.textContent = 'Analisando...';
+  showTerminal(domain);
+
+  const steps = [
+    [0,    `<span class="t-sym">$</span> <span>Iniciando análise de <strong>${domain}</strong></span> <span class="t-blink"></span>`],
+    [500,  `<span class="t-sym">▶</span> <span class="t-dim">[1/5] Resolvendo IP e geolocalização...</span>`],
+    [1400, `<span class="t-sym">▶</span> <span class="t-dim">[2/5] Verificando certificado SSL/TLS...</span>`],
+    [2500, `<span class="t-sym">▶</span> <span class="t-dim">[3/5] Consultando registros DNS e SPF/DMARC...</span>`],
+    [3800, `<span class="t-sym">▶</span> <span class="t-dim">[4/5] Analisando cabeçalhos HTTP de segurança...</span>`],
+    [5000, `<span class="t-sym">▶</span> <span class="t-dim">[5/5] Consultando bases OSINT públicas...</span>`],
+  ];
+
+  for (const [delay, html] of steps) await addLine(html, delay);
+
+  try {
+    // Verifica se a API foi configurada
+    if (API_BASE.includes('SEU-APP-AQUI')) {
+      throw new Error('API_NOT_CONFIGURED');
+    }
+
+    const ctrl    = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 50000);
+    const resp    = await fetch(`${API_BASE}/demo?domain=${encodeURIComponent(domain)}`, {
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.detail || `Servidor retornou HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    await addLine(`<span class="t-sym">▶</span> <span class="t-ok">✓ Scan concluído em ${data.elapsed_seconds?.toFixed(1) ?? '?'}s</span>`, 300);
+    await addLine(`<span class="t-sym">▶</span> <span class="t-ok">✓ Score calculado: ${data.score ?? '?'}/100</span>`, 200);
+
+    setTimeout(() => {
+      document.getElementById('terminal').style.display = 'none';
+      renderResult(domain, data);
+    }, 700);
+
+  } catch(err) {
+    let msg;
+    if (err.message === 'API_NOT_CONFIGURED') {
+      msg = 'API ainda não configurada. Siga o guia DEPLOY.md para colocar o scanner online.';
+    } else if (err.name === 'AbortError') {
+      msg = 'Tempo limite excedido. O servidor pode estar inicializando — aguarde 30s e tente novamente.';
+    } else {
+      msg = `Erro: ${err.message}`;
+    }
+
+    await addLine(`<span class="t-sym">▶</span> <span class="t-err">✕ ${msg}</span>`, 200);
+    errEl.textContent = `⚠️  ${msg}`;
+    errEl.style.display = 'block';
+  } finally {
+    scanning = false;
+    btn.disabled = false;
+    btn.textContent = 'Analisar →';
+  }
+}
+
+document.getElementById('domainInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startScan();
+});
+
+// ── MODAL PIX ──────────────────────────────
+function openPix(plan, price) {
+  document.getElementById('pixPlanNm').textContent = 'Plano ' + plan;
+  document.getElementById('pixVal').textContent    = price;
+  const msg = encodeURIComponent(
+    `Olá! Quero contratar o Plano ${plan} (R$ ${price}). Segue o comprovante do Pix.`
+  );
+  document.getElementById('pixWpp').href = `https://wa.me/5566992263383?text=${msg}`;
+  document.getElementById('pixModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePix() {
+  document.getElementById('pixModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function copyPix() {
+  navigator.clipboard.writeText('51698369000150').then(() => {
+    const b = document.querySelector('.pix-copy');
+    b.textContent = '✅ Copiado!';
+    setTimeout(() => { b.textContent = '📋 Copiar Chave'; }, 2200);
+  });
+}
+
+document.getElementById('pixModal').addEventListener('click', e => {
+  if (e.target.id === 'pixModal') closePix();
+});
+</script>
+</body>
+</html>
